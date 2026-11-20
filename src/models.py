@@ -63,3 +63,38 @@ if __name__ == "__main__":
     mlp = DigitMLP()
     print(f"DigitCNN trainable params: {count_parameters(cnn):,}")
     print(f"DigitMLP trainable params: {count_parameters(mlp):,}")
+
+
+class RegularizedDigitCNN(nn.Module):
+    """
+    CNN enhanced with Batch Normalization and Dropout to reduce overfitting
+    and improve generalization on shifted/rotated handwriting.
+    """
+    def __init__(self, num_classes: int = 10):
+        super().__init__()
+        self.conv_block1 = nn.Sequential(
+            nn.Conv2d(1, 32, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+        )
+        self.conv_block2 = nn.Sequential(
+            nn.Conv2d(32, 64, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Dropout2d(p=0.15),
+        )
+        self.classifier = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(64 * 7 * 7, 128, bias=False),
+            nn.BatchNorm1d(128),
+            nn.ReLU(),
+            nn.Dropout(p=0.4),
+            nn.Linear(128, num_classes),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.conv_block1(x)
+        x = self.conv_block2(x)
+        return self.classifier(x)    
