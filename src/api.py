@@ -5,8 +5,8 @@ import torch
 from PIL import Image
 from fastapi import FastAPI, File, UploadFile, HTTPException
 
-from models import DigitCNN, RegularizedDigitCNN
-from data import MNIST_MEAN, MNIST_STD
+from src.models import DigitCNN, RegularizedDigitCNN
+from src.data import MNIST_MEAN, MNIST_STD
 
 app = FastAPI(title="MNIST Handwritten Digit Classifier API", version="1.0.0")
 
